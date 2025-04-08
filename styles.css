@@ -67,7 +67,7 @@ button:hover {
 
 canvas {
   width: 100% !important;
-  height: auto !important;
+  height: 250px !important; /* Adjust height for mobile */
 }
 
 .contact-form {
@@ -81,8 +81,8 @@ canvas {
 
 @media (max-width: 600px) {
   canvas {
+    height: auto !important;
     max-width: 100% !important;
-    height: 200px !important;
   }
 
   input, textarea, button {
