@@ -76,11 +76,15 @@ function drawChart(solarData, usage) {
         {
           label: 'Solar Output (kWh)',
           backgroundColor: '#4CAF50',
+          borderColor: '#388E3C',
+          borderWidth: 2,
           data: solarData
         },
         {
           label: 'Your Monthly Usage (kWh)',
           backgroundColor: '#f39c12',
+          borderColor: '#F39C12',
+          borderWidth: 2,
           data: userMonthly
         }
       ]
@@ -89,8 +93,23 @@ function drawChart(solarData, usage) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'top' },
-        title: { display: true, text: 'Monthly Solar Output vs. Usage' }
+        legend: { position: 'top', labels: { font: { size: 14 } } },
+        title: { display: true, text: 'Monthly Solar Output vs. Usage', font: { size: 18 } },
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' kWh';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { font: { size: 12 } }
+        },
+        y: {
+          ticks: { font: { size: 12 }, beginAtZero: true }
+        }
       }
     }
   });
