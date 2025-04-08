@@ -1,105 +1,114 @@
-const apiKey = 'WiWq6RjGPS1kjDgdecSXkeKRSpGVyQCL4y46CetC';
-let chartInstance;
-
-document.getElementById('calculatorForm').addEventListener('submit', async function (e) {
+document.getElementById("solarForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const location = document.getElementById('location').value;
-  const usage = parseFloat(document.getElementById('usage').value);
-  const cost = parseFloat(document.getElementById('cost').value);
-  const systemSize = 5; // kW
+  const size = parseFloat(document.getElementById("systemSize").value);
+  const cost = parseFloat(document.getElementById("systemCost").value);
+  const [lat, lon] = document.getElementById("location").value.split(",").map(Number);
 
-  const coords = await getLatLon(location);
-  if (!coords) return alert('Could not find location.');
+  const pvWattsUrl = `https://developer.nrel.gov/api/pvwatts/v8.json?api_key=WiWq6RjGPS1kjDgdecSXkeKRSpGVyQCL4y46CetC&system_capacity=${size}&module_type=1&losses=14&array_type=1&tilt=20&azimuth=180&lat=${lat}&lon=${lon}`;
 
-  const { lat, lon } = coords;
-  const output = await getPVWattsData(lat, lon, systemSize, usage, cost);
+  try {
+    const res = await fetch(pvWattsUrl);
+    const data = await res.json();
+    const annualGeneration = data.outputs.ac_annual;
+    const monthly = data.outputs.ac_monthly;
 
-  if (output) document.getElementById('results').classList.remove('hidden');
+    const electricityRate = 0.30; // $/kWh
+    const annualSavings = annualGeneration * electricityRate;
+
+    // Display results
+    document.getElementById("summary").innerText = `
+      Estimated Annual Generation: ${annualGeneration.toFixed(0)} kWh
+      Estimated Annual Savings: $${annualSavings.toFixed(0)}
+    `;
+
+    drawGenerationChart(monthly);
+    drawDCFChart(cost, annualSavings);
+
+    document.getElementById("assumptions").innerHTML = `
+      <h3>Assumptions</h3>
+      <ul>
+        <li>Electricity Rate: $0.30/kWh</li>
+        <li>Discount Rate: 5%</li>
+        <li>Degradation: 0.5%/year</li>
+        <li>System Lifetime: 20 years</li>
+      </ul>
+    `;
+  } catch (err) {
+    console.error("Error fetching PVWatts data:", err);
+  }
 });
 
-async function getLatLon(place) {
-  try {
-    const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`);
-    const data = await resp.json();
-    if (data.length > 0) return { lat: data[0].lat, lon: data[0].lon };
-    return null;
-  } catch (error) {
-    console.error("Geocoding error:", error);
-    return null;
-  }
-}
+function drawGenerationChart(monthlyData) {
+  const ctx = document.getElementById("generationChart").getContext("2d");
+  if (window.generationChart) window.generationChart.destroy();
 
-async function getPVWattsData(lat, lon, systemSize, usage, cost) {
-  const url = `https://developer.nrel.gov/api/pvwatts/v8.json?api_key=${apiKey}&lat=${lat}&lon=${lon}&system_capacity=${systemSize}&azimuth=0&tilt=20&array_type=1&module_type=1&losses=14`;
-
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
-    const output = json.outputs;
-
-    const acAnnual = output.ac_annual;
-    const acMonthly = output.ac_monthly;
-    const monthlyOutput = acAnnual / 12;
-    const offset = ((monthlyOutput / usage) * 100).toFixed(1);
-    const savings = ((monthlyOutput * 0.30) * 12).toFixed(2); // Assuming $0.30/kWh
-    const roi = (cost / (savings || 1)).toFixed(1);
-
-    const recommendedBattery = usage * 1.5;
-
-    document.getElementById('annualOutput').textContent = `Estimated Annual Solar Output: ${acAnnual.toFixed(0)} kWh`;
-    document.getElementById('offset').textContent = `This offsets ~${offset}% of your monthly usage.`;
-    document.getElementById('savings').textContent = `Estimated Annual Savings: $${savings}`;
-    document.getElementById('roi').textContent = `Estimated Payback Period: ${roi} years`;
-    document.getElementById('battery').textContent = `Recommended Battery Size: ${recommendedBattery.toFixed(0)} kWh`;
-
-    drawChart(acMonthly, usage);
-
-    return output;
-  } catch (err) {
-    console.error("PVWatts error:", err);
-    return null;
-  }
-}
-
-function drawChart(solarData, usage) {
-  const userMonthly = Array(12).fill(usage);
-  const ctx = document.getElementById('solarChart').getContext('2d');
-
-  if (chartInstance) chartInstance.destroy();
-
-  chartInstance = new Chart(ctx, {
-    type: 'bar',
+  window.generationChart = new Chart(ctx, {
+    type: "bar",
     data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      datasets: [
-        {
-          label: 'Solar Output (kWh)',
-          backgroundColor: '#4CAF50',
-          data: solarData
-        },
-        {
-          label: 'Your Monthly Usage (kWh)',
-          backgroundColor: '#f39c12',
-          data: userMonthly
-        }
-      ]
+      labels: [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      ],
+      datasets: [{
+        label: "Monthly Generation (kWh)",
+        backgroundColor: "#4CAF50",
+        data: monthlyData
+      }]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top' },
-        title: { display: true, text: 'Monthly Solar Output vs. Usage' }
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
     }
   });
 }
 
-// Contact Form (mock)
-document.getElementById('contactForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  const name = document.getElementById('name').value;
-  document.getElementById('contactStatus').textContent = `Thanks ${name}, we’ll be in touch!`;
-  e.target.reset();
-});
+function drawDCFChart(initialCost, annualSavings, years = 20) {
+  const discountRate = 0.05;
+  const degradation = 0.005;
+
+  let cumulative = [];
+  let sum = -initialCost;
+  cumulative.push({ year: 0, value: sum });
+
+  for (let t = 1; t <= years; t++) {
+    let yearSavings = annualSavings * Math.pow(1 - degradation, t - 1);
+    let discounted = yearSavings / Math.pow(1 + discountRate, t);
+    sum += discounted;
+    cumulative.push({ year: t, value: sum });
+  }
+
+  const ctx = document.getElementById("dcfChart").getContext("2d");
+  if (window.dcfChart) window.dcfChart.destroy();
+
+  window.dcfChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: cumulative.map(c => `Year ${c.year}`),
+      datasets: [{
+        label: "Cumulative Cash Flow ($)",
+        data: cumulative.map(c => c.value),
+        borderColor: "#2196F3",
+        backgroundColor: "rgba(33, 150, 243, 0.1)",
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          title: { display: true, text: 'AUD' }
+        }
+      }
+    }
+  });
+}
