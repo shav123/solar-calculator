@@ -11,13 +11,14 @@ body {
   background-color: white;
   padding: 30px;
   border-radius: 12px;
-  max-width: 600px;
+  max-width: 700px;
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .form-group {
@@ -27,15 +28,21 @@ h1, h2 {
 label {
   display: block;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
-input {
+input, textarea {
   width: 100%;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
 button {
@@ -47,14 +54,11 @@ button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 button:hover {
   background-color: #45a049;
-}
-
-#results {
-  margin-top: 30px;
 }
 
 .hidden {
@@ -63,4 +67,13 @@ button:hover {
 
 canvas {
   margin-top: 30px;
+}
+
+.contact-form {
+  margin-top: 40px;
+}
+
+#contactStatus {
+  margin-top: 10px;
+  color: green;
 }
