@@ -71,6 +71,15 @@ canvas {
   height: auto !important;
 }
 
+.contact-form {
+  margin-top: 40px;
+}
+
+#contactStatus {
+  margin-top: 10px;
+  color: green;
+}
+
 @media screen and (max-width: 600px) {
   .container {
     padding: 15px;

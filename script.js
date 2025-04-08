@@ -46,14 +46,12 @@ async function getPVWattsData(lat, lon, systemSize, usage, cost) {
     const roi = (cost / (savings || 1)).toFixed(1);
 
     const recommendedBattery = usage * 1.5;
-    const sunlightGrading = gradeSunlight(lat, lon);
 
     document.getElementById('annualOutput').textContent = `Estimated Annual Solar Output: ${acAnnual.toFixed(0)} kWh`;
     document.getElementById('offset').textContent = `This offsets ~${offset}% of your monthly usage.`;
     document.getElementById('savings').textContent = `Estimated Annual Savings: $${savings}`;
     document.getElementById('roi').textContent = `Estimated Payback Period: ${roi} years`;
     document.getElementById('battery').textContent = `Recommended Battery Size: ${recommendedBattery.toFixed(0)} kWh`;
-    document.getElementById('sunlightGrading').textContent = `Sunlight Grading for your location: ${sunlightGrading}`;
 
     drawChart(acMonthly, usage);
 
@@ -76,4 +74,32 @@ function drawChart(solarData, usage) {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       datasets: [
         {
-          label
+          label: 'Solar Output (kWh)',
+          backgroundColor: '#4CAF50',
+          data: solarData
+        },
+        {
+          label: 'Your Monthly Usage (kWh)',
+          backgroundColor: '#f39c12',
+          data: userMonthly
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: 'Monthly Solar Output vs. Usage' }
+      }
+    }
+  });
+}
+
+// Contact Form (mock)
+document.getElementById('contactForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  document.getElementById('contactStatus').textContent = `Thanks ${name}, we’ll be in touch!`;
+  e.target.reset();
+});
