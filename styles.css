@@ -66,10 +66,10 @@ button:hover {
 }
 
 canvas {
-  margin-top: 30px;
   width: 100% !important;
-  height: auto !important;
+  height: 250px !important; /* Adjust height for mobile */
 }
+
 
 .contact-form {
   margin-top: 40px;
@@ -80,10 +80,10 @@ canvas {
   color: green;
 }
 
-@media screen and (max-width: 600px) {
-  .container {
-    padding: 15px;
-    width: 100%;
+@media (max-width: 600px) {
+  canvas {
+    height: auto !important;
+    max-width: 100% !important;
   }
 
   input, textarea, button {
