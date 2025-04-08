@@ -87,6 +87,7 @@ function drawChart(solarData, usage) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { position: 'top' },
         title: { display: true, text: 'Monthly Solar Output vs. Usage' }

@@ -67,6 +67,8 @@ button:hover {
 
 canvas {
   margin-top: 30px;
+  width: 100% !important;
+  height: auto !important;
 }
 
 .contact-form {
@@ -76,4 +78,20 @@ canvas {
 #contactStatus {
   margin-top: 10px;
   color: green;
+}
+
+@media screen and (max-width: 600px) {
+  .container {
+    padding: 15px;
+    width: 100%;
+  }
+
+  input, textarea, button {
+    width: 100%;
+  }
+
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
 }
