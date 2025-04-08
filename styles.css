@@ -66,7 +66,6 @@ button:hover {
 }
 
 canvas {
-  margin-top: 30px;
   width: 100% !important;
   height: auto !important;
 }
@@ -80,10 +79,10 @@ canvas {
   color: green;
 }
 
-@media screen and (max-width: 600px) {
-  .container {
-    padding: 15px;
-    width: 100%;
+@media (max-width: 600px) {
+  canvas {
+    max-width: 100% !important;
+    height: 200px !important;
   }
 
   input, textarea, button {
