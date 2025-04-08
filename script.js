@@ -46,12 +46,14 @@ async function getPVWattsData(lat, lon, systemSize, usage, cost) {
     const roi = (cost / (savings || 1)).toFixed(1);
 
     const recommendedBattery = usage * 1.5;
+    const sunlightGrading = gradeSunlight(lat, lon);
 
     document.getElementById('annualOutput').textContent = `Estimated Annual Solar Output: ${acAnnual.toFixed(0)} kWh`;
     document.getElementById('offset').textContent = `This offsets ~${offset}% of your monthly usage.`;
     document.getElementById('savings').textContent = `Estimated Annual Savings: $${savings}`;
     document.getElementById('roi').textContent = `Estimated Payback Period: ${roi} years`;
     document.getElementById('battery').textContent = `Recommended Battery Size: ${recommendedBattery.toFixed(0)} kWh`;
+    document.getElementById('sunlightGrading').textContent = `Sunlight Grading for your location: ${sunlightGrading}`;
 
     drawChart(acMonthly, usage);
 
@@ -74,51 +76,4 @@ function drawChart(solarData, usage) {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       datasets: [
         {
-          label: 'Solar Output (kWh)',
-          backgroundColor: '#4CAF50',
-          borderColor: '#388E3C',
-          borderWidth: 2,
-          data: solarData
-        },
-        {
-          label: 'Your Monthly Usage (kWh)',
-          backgroundColor: '#f39c12',
-          borderColor: '#F39C12',
-          borderWidth: 2,
-          data: userMonthly
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top', labels: { font: { size: 14 } } },
-        title: { display: true, text: 'Monthly Solar Output vs. Usage', font: { size: 18 } },
-        tooltip: {
-          callbacks: {
-            label: function (tooltipItem) {
-              return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' kWh';
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { font: { size: 12 } }
-        },
-        y: {
-          ticks: { font: { size: 12 }, beginAtZero: true }
-        }
-      }
-    }
-  });
-}
-
-// Contact Form (mock)
-document.getElementById('contactForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  const name = document.getElementById('name').value;
-  document.getElementById('contactStatus').textContent = `Thanks ${name}, we’ll be in touch!`;
-  e.target.reset();
-});
+          label

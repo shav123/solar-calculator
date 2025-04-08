@@ -66,23 +66,15 @@ button:hover {
 }
 
 canvas {
+  margin-top: 30px;
   width: 100% !important;
-  height: 250px !important; /* Adjust height for mobile */
+  height: auto !important;
 }
 
-.contact-form {
-  margin-top: 40px;
-}
-
-#contactStatus {
-  margin-top: 10px;
-  color: green;
-}
-
-@media (max-width: 600px) {
-  canvas {
-    height: auto !important;
-    max-width: 100% !important;
+@media screen and (max-width: 600px) {
+  .container {
+    padding: 15px;
+    width: 100%;
   }
 
   input, textarea, button {
